@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Advanced Login</title>
+
+    <!-- Link CSS file -->
+    <link rel="stylesheet" href="advanceloginPage.css">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="login-box">
+        <h2>Welcome Back</h2>
+
+        <form>
+
+            <div class="input-group">
+                <input type="email" id="email" required>
+                <label>Enter email or UserName</label>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" required>
+                <label>Password</label>
+                <span class="toggle-password" onclick="togglePassword()">👁</span>
+            </div>
+
+            <button type="button" onclick="login()">Login</button>
+            <p id="errormsg" style="color:tomato;"></p>
+            <div class="extra">
+                Forgot Password?
+            </div>
+
+        </form>
+
+    </div>
+     <!-- Movie Page -->
+  <div id="moviePage">
+    <h1 style="text-align:center;">🎥 Movie Search</h1>
+    <div style="text-align:center; margin-bottom:20px;">
+      <input type="text" id="searchInput" placeholder="Enter movie name">
+      <button onclick="searchMovies()">Search</button>
+    </div>
+    <ul id="movieList">Movoies here</ul>
+  </div>
+
+    <!-- JavaScript -->
+    <script>
+        function togglePassword() {
+            let pwd = document.getElementById("password");
+
+            if (pwd.type === "password") {
+                pwd.type = "text";
+            } else {
+                pwd.type = "password";
+            }
+        }
+        
+        async function login() {
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const errormsg = document.getElementById("errormsg");
+
+            try{
+                const res = await fetch("users.json");
+                const users = await res.json();
+
+
+                const finduser = users.find(u => u.email === email && u.password === password);
+
+                if (finduser) {
+                    document.getElementById("login-box").style.display = "none";
+                    document.getElementById("moviePage").style.display = "block";
+                } else {
+                    errormsg.textContent = "Invalid email or password.";
+                }
+            } catch (err) {
+                console.log("error loading users.json:",err);
+            }
+        }
+
+        const apikey = "a73a0890";
+          async function searchMovies() {
+      const searchTerm = document.getElementById("searchInput").value.trim();
+      const apiUrl = `http://www.omdbapi.com/?i=tt3896198&apikey=a73a0890=${a73a0890}&s=${searchTerm}`;
+
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        const movieList = document.getElementById("movieList");
+        movieList.innerHTML = "";
+
+        if (data.Response === "True") {
+          data.Search.forEach(movie => {
+            const li = document.createElement("li");
+            li.classList.add("movie-card");
+
+            li.innerHTML = `
+              <img src="${movie.Poster !== "N/A" ? movie.Poster : 'https://via.placeholder.com/200x300?text=No+Image'}" alt="${movie.Title}">
+              <h3 style="color:red;">${movie.Title}</h3>
+              <p><i>Year: ${movie.Year} </i></p>
+            `;
+            movieList.appendChild(li);
+          });
+        } else {
+          movieList.innerHTML = `<li>No movies found for "${searchTerm}"</li>`;
+        }
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+      }
+    }
+    </script>
+
+</body>
+</html>
